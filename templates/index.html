@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ToDo List with Categories</title>
+</head>
+<body>
+  <h1>ToDo List</h1>
+
+  <h2>Add category/h2>
+  <form action="/add_category" method="POST">
+    <input type="text" name="name" placeholder="Category name" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <h2>Add task</h2>
+  <form action="/add" method="POST">
+    <input type="text" name="title" placeholder="Task Name" required>
+    <input type="text" name="description" placeholder="Description">
+    <select name="category_id">
+      <option value="">Без категорії</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}">{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Add</button>
+  </form>
+
+  <h2>Task List</h2>
+  <ul>
+    {% for task in tasks %}
+      <li>
+        <b>{{ task.title }}</b> — {{ task.description }}
+        {% if task.category %}[{{ task.category.name }}]{% endif %}
+        <a href="/delete/{{ task.id }}">❌</a>
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
