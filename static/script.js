@@ -14,18 +14,11 @@ if(!res.ok) alert('Błąd aktualizacji');
 const res = await fetch(`${API}/books`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 if(res.status !== 201) alert('Błąd tworzenia');
 }
-clearForm();
-loadBooks();
-}
 
-
-async function deleteBook(id){
-if(confirm('Usunąć książkę?')){
-const res = await fetch(`${API}/books/${id}`,{method:'DELETE'});
-if(res.status === 204) loadBooks(); else alert('Błąd usuwania');
+async function deleteTask(id) {
+  await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+  loadTasks();
 }
-}
-
 
 async function editBook(id){
 const res = await fetch(`${API}/books/${id}`);
