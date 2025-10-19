@@ -18,8 +18,8 @@ class Book(db.Model):
     genre = db.Column(db.String(50))
     rating = db.Column(db.Float, default=0.0)
     # ✅ nowe pola:
-    publisher = db.Column(db.String(100))   # wydawnictwo (tekst)
-    price = db.Column(db.Float, default=0.0)  # cena (liczba)
+    publisher = db.Column(db.String(100))   
+    price = db.Column(db.Float, default=0.0)  
 
     def to_dict(self):
         return {
@@ -109,5 +109,5 @@ def delete_book(id):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # migracja: tworzy/aktualizuje tabelę
+        db.create_all() 
     app.run(debug=True)
