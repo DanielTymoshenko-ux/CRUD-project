@@ -1,28 +1,59 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from flask import Flask, jsonify, request, abort
 
-db = SQLAlchemy()
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+@app.route('/api/books', methods=['GET'])
+def list_books():
+return jsonify([b.to_dict() for b in Book.query.all()]), 200
 
-    db.init_app(app)
 
-    from models import Category, Task
-    from routes import main
-    from api import api_bp
+@app.route('/api/books/<int:id>', methods=['GET'])
+def get_book(id):
+b = Book.query.get_or_404(id)
+return jsonify(b.to_dict()), 200
 
-    app.register_blueprint(main)
-    app.register_blueprint(api_bp, url_prefix="/api")
 
-    with app.app_context():
-        db.create_all()
+@app.route('/api/books', methods=['POST'])
+def create_book():
+data = request.get_json()
+_validate_book_payload(data)
+b = Book(
+title=data['title'].strip(),
+author=data['author'].strip(),
+published_date=datetime.fromisoformat(data['published_date']).date() if data.get('published_date') else None,
+pages=int(data.get('pages', 0)),
+genre=data.get('genre'),
+rating=float(data.get('rating', 0.0))
+)
+db.session.add(b)
+db.session.commit()
+return jsonify(b.to_dict()), 201
 
-    return app
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)
+@app.route('/api/books/<int:id>', methods=['PUT'])
+def update_book(id):
+b = Book.query.get_or_404(id)
+data = request.get_json()
+_validate_book_payload(data, partial=True)
+if 'title' in data and data['title'] is not None: b.title = data['title']
+if 'author' in data and data['author'] is not None: b.author = data['author']
+if 'pages' in data and data['pages'] is not None: b.pages = int(data['pages'])
+if 'published_date' in data:
+b.published_date = datetime.fromisoformat(data['published_date']).date() if data['published_date'] else None
+if 'genre' in data:
+b.genre = data['genre']
+if 'rating' in data:
+b.rating = float(data['rating']) if data['rating'] is not None else 0.0
+db.session.commit()
+return jsonify(b.to_dict()), 200
+
+
+@app.route('/api/books/<int:id>', methods=['DELETE'])
+def delete_book(id):
+b = Book.query.get_or_404(id)
+db.session.delete(b)
+db.session.commit()
+return ('', 204)
+
+
+if __name__ == '__main__':
+app.run(debug=True)
