@@ -1,41 +1,18 @@
-const API_URL = "http://127.0.0.1:5000/api";
-
-async function loadTasks() {
-  const res = await fetch(`${API_URL}/tasks`);
-  const tasks = await res.json();
-  const list = document.getElementById("taskList");
-  list.innerHTML = "";
-  tasks.forEach(t => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <b>${t.title}</b> — ${t.description || ""} 
-      [Priority: ${t.priority}] 
-      [Deadline: ${t.deadline || "—"}] 
-      ${t.done ? "✅" : ""}
-      <button onclick="deleteTask(${t.id})">❌</button>
-    `;
-    list.appendChild(li);
-  });
-}
-
-async function addTask() {
-  const title = document.getElementById("taskTitle").value;
-  const description = document.getElementById("taskDesc").value;
-  const priority = document.getElementById("taskPriority").value;
-  const deadline = document.getElementById("taskDeadline").value;
-  if (!title) return alert("Title is required");
-
-  await fetch(`${API_URL}/tasks`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ title, description, priority, deadline })
-  });
-
-  document.getElementById("taskTitle").value = "";
-  document.getElementById("taskDesc").value = "";
-  document.getElementById("taskPriority").value = 3;
-  document.getElementById("taskDeadline").value = "";
-  loadTasks();
+const API = 'http://127.0.0.1:5000/api';
+author: document.getElementById('author').value,
+published_date: document.getElementById('published_date').value || null,
+pages: parseInt(document.getElementById('pages').value || 0),
+genre: document.getElementById('genre').value || null,
+rating: document.getElementById('rating').value ? parseFloat(document.getElementById('rating').value) : 0.0
+};
+if(!payload.title || !payload.author){alert('Wpisz tytuł i автора');return;}
+if(payload.rating < 0 || payload.rating > 5){alert('Ocena musi być między 0 a 5');return;}
+if(id){
+const res = await fetch(`${API}/books/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+if(!res.ok) alert('Błąd aktualizacji');
+} else {
+const res = await fetch(`${API}/books`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+if(res.status !== 201) alert('Błąd tworzenia');
 }
 
 async function deleteTask(id) {
@@ -43,4 +20,31 @@ async function deleteTask(id) {
   loadTasks();
 }
 
-loadTasks();
+async function editBook(id){
+const res = await fetch(`${API}/books/${id}`);
+if(!res.ok){ alert('Nie znaleziono'); return; }
+const b = await res.json();
+document.getElementById('bookId').value = b.id;
+document.getElementById('title').value = b.title;
+document.getElementById('author').value = b.author;
+document.getElementById('published_date').value = b.published_date || '';
+document.getElementById('pages').value = b.pages;
+document.getElementById('genre').value = b.genre || '';
+document.getElementById('rating').value = b.rating != null ? b.rating : '';
+}
+
+
+function clearForm(){
+document.getElementById('bookId').value = '';
+document.getElementById('title').value = '';
+document.getElementById('author').value = '';
+document.getElementById('published_date').value = '';
+document.getElementById('pages').value = '';
+document.getElementById('genre').value = '';
+document.getElementById('rating').value = '';
+}
+
+
+document.getElementById('saveBtn').addEventListener('click', saveBook);
+document.getElementById('clearBtn').addEventListener('click', clearForm);
+window.addEventListener('load', loadBooks);
