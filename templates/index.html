@@ -1,39 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <title>ToDo CRUD</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Books CRUD</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:24px}
+input,button{padding:6px;margin:4px}
+.book{border:1px solid #ddd;padding:8px;margin:6px 0;border-radius:6px}
+</style>
 </head>
 <body>
-  <h1>ToDo List</h1>
-
-  <h2>ADD TASK</h2>
-  <form id="addForm" method="POST" action="/add">
-    <input type="text" name="title" placeholder="Title" required>
-    <input type="text" name="description" placeholder="description">
-    <select name="category_id">
-      <option value="">NO CATEGORY</option>
-      {% for c in categories %}
-      <option value="{{ c.id }}">{{ c.name }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">ADD</button>
-  </form>
-
-  <h2>ADD CATEGORY</h2>
-  <form method="POST" action="/add_category">
-    <input type="text" name="name" placeholder="category title" required>
-    <button type="submit">ADD</button>
-  </form>
-
-  <h2>TASK LIST</h2>
-  <ul>
-    {% for t in tasks %}
-    <li>
-      {{ t.title }} — {{ t.description }} [{{ 'done' if t.done else 'pending' }}]
-      <a href="/delete/{{ t.id }}">DELETE</a>
-    </li>
-    {% endfor %}
-  </ul>
+<h1>Books CRUD</h1>
+<section>
+<h2>Lista książek</h2>
+<div id="books"></div>
+</section>
+<section>
+<h2>Dodaj / Edytuj książkę</h2>
+<input id="bookId" type="hidden">
+<input id="title" placeholder="Tytuł">
+<input id="author" placeholder="Autor">
+<input id="published_date" placeholder="YYYY-MM-DD">
+<input id="pages" type="number" min="0" placeholder="Liczba stron">
+<input id="genre" placeholder="Gatunek">
+<input id="rating" type="number" min="0" max="5" step="0.1" placeholder="Ocena (0-5)">
+<button id="saveBtn">Zapisz</button>
+<button id="clearBtn">Wyczyść</button>
+</section>
+<script src="app.js"></script>
 </body>
 </html>
