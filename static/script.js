@@ -1,50 +1,82 @@
-const API = 'http://127.0.0.1:5000/api';
-author: document.getElementById('author').value,
-published_date: document.getElementById('published_date').value || null,
-pages: parseInt(document.getElementById('pages').value || 0),
-genre: document.getElementById('genre').value || null,
-rating: document.getElementById('rating').value ? parseFloat(document.getElementById('rating').value) : 0.0
-};
-if(!payload.title || !payload.author){alert('Wpisz tytuł i автора');return;}
-if(payload.rating < 0 || payload.rating > 5){alert('Ocena musi być między 0 a 5');return;}
-if(id){
-const res = await fetch(`${API}/books/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-if(!res.ok) alert('Błąd aktualizacji');
-} else {
-const res = await fetch(`${API}/books`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-if(res.status !== 201) alert('Błąd tworzenia');
+const API_URL = '/api'; 
+
+
+async function loadTasks() {
+  const res = await fetch(`${API_URL}/tasks`);
+  if (!res.ok) {
+    alert('Помилка при завантаженні задач');
+    return;
+  }
+  const tasks = await res.json();
+  renderTasks(tasks);
 }
 
-async function deleteTask(id) {
-  await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+
+async function addTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  const description = document.getElementById('taskDesc').value.trim();
+  const priority = parseInt(document.getElementById('taskPriority').value) || 3;
+  const deadline = document.getElementById('taskDeadline').value || null;
+
+  if (!title) {
+    alert('Введіть назву завдання');
+    return;
+  }
+
+  const payload = {
+    title,
+    description,
+    priority,
+    deadline
+  };
+
+  const res = await fetch(`${API_URL}/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.status !== 201) {
+    alert('Помилка при створенні задачі');
+    return;
+  }
+
+  document.getElementById('addForm').reset();
   loadTasks();
 }
 
-async function editBook(id){
-const res = await fetch(`${API}/books/${id}`);
-if(!res.ok){ alert('Nie znaleziono'); return; }
-const b = await res.json();
-document.getElementById('bookId').value = b.id;
-document.getElementById('title').value = b.title;
-document.getElementById('author').value = b.author;
-document.getElementById('published_date').value = b.published_date || '';
-document.getElementById('pages').value = b.pages;
-document.getElementById('genre').value = b.genre || '';
-document.getElementById('rating').value = b.rating != null ? b.rating : '';
+async function deleteTask(id) {
+  const ok = confirm('Видалити цю задачу?');
+  if (!ok) return;
+  const res = await fetch(`${API_URL}/tasks/${id}`, { method: 'DELETE' });
+  if (res.status !== 204) {
+    alert('Помилка при видаленні');
+    return;
+  }
+  loadTasks();
 }
 
 
-function clearForm(){
-document.getElementById('bookId').value = '';
-document.getElementById('title').value = '';
-document.getElementById('author').value = '';
-document.getElementById('published_date').value = '';
-document.getElementById('pages').value = '';
-document.getElementById('genre').value = '';
-document.getElementById('rating').value = '';
+function renderTasks(tasks) {
+  const ul = document.getElementById('taskList');
+  ul.innerHTML = '';
+
+  if (!tasks.length) {
+    ul.innerHTML = '<li>No tasaks</li>';
+    return;
+  }
+
+  for (const t of tasks) {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${t.title}</strong> — ${t.description || ''} 
+      [${t.done ? 'done' : 'pending'}]
+      <br>Priority: ${t.priority}, Deadline: ${t.deadline || '-'}
+      <button onclick="deleteTask(${t.id})">DELETE</button>
+    `;
+    ul.appendChild(li);
+  }
 }
 
 
-document.getElementById('saveBtn').addEventListener('click', saveBook);
-document.getElementById('clearBtn').addEventListener('click', clearForm);
-window.addEventListener('load', loadBooks);
+window.addEventListener('load', loadTasks);
