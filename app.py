@@ -182,7 +182,7 @@ def delete_task_api(id):
     # 204 No Content
     return ('', 204)
 
-f __name__ == '__main__':
+if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     port = int(os.environ.get("PORT", 5000)) 
