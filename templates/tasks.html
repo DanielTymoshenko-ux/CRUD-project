@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tasks</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script>
+    async function addTask() {
+      const title = document.getElementById("title").value;
+      const category = document.getElementById("category").value;
+      const priority = document.getElementById("priority").value;
+      const deadline = document.getElementById("deadline").value;
+
+      const res = await fetch("/add_task", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ title, category, priority, deadline })
+      });
+      if (res.ok) location.reload();
+    }
+
+    async function deleteTask(id) {
+      if (!confirm("Sure to remove?")) return;
+      const res = await fetch("/delete_task/" + id, { method: "DELETE" });
+      if (res.ok) location.reload();
+    }
+
+    async function updateTask(id) {
+      const title = prompt("New:");
+      const category = prompt("New cathegory:");
+      const priority = prompt("New priority:");
+      const deadline = prompt("New deadline (RRRR-MM-DD):");
+
+      const res = await fetch("/update_task/" + id, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ title, category, priority, deadline })
+      });
+      if (res.ok) location.reload();
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Your Tasks</h1>
+    <nav>
+      <span>Logged in as <b>{{ user }}</b></span>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Add new task</h2>
+    <div class="task-form">
+      <input id="title" placeholder="Title" />
+      <input id="category" placeholder="Cathegory" />
+      <input type="number" id="priority" placeholder="Priority (1–5)" min="1" max="5" value="3">
+      <input id="deadline" type="date" />
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <h2>Task List</h2>
+    <ul>
+      {% for t in tasks %}
+        <li>
+          <div class="task-info">
+            <strong>{{ t.title }}</strong>
+            <span>{{ t.category or "-" }}</span>
+            <span>{{ t.priority or "-" }}</span>
+            <span>{{ t.deadline or "-" }}</span>
+          </div>
+          <div>
+            <button onclick="updateTask({{t.id}})">Edit</button>
+            <button onclick="deleteTask({{t.id}})">Remove</button>
+          </div>
+        </li>
+      {% else %}
+        <li>No tasks</li>
+      {% endfor %}
+    </ul>
+  </main>
+</body>
+</html>
