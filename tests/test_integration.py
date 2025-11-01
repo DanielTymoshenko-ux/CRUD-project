@@ -11,7 +11,7 @@ def client():
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///:memory:"
     with app.app_context():
-        db.init_app(app)
+        
         db.create_all()
        
         u = User(login="alice", hasloHash=generate_password_hash("password"))
