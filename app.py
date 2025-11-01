@@ -3,7 +3,11 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
 from models import db, User, Task
+
 from sqlalchemy.exc import IntegrityError
+
+import os
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///database.db")
@@ -273,5 +277,9 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
+<<<<<<< HEAD
     
+=======
+   
+>>>>>>> b6368fe7d841ff6dd59f507ee14bb14c5bbaaaf7
     app.run(host="0.0.0.0", port=port, debug=False)
