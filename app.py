@@ -277,9 +277,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
-<<<<<<< HEAD
-    
-=======
-   
->>>>>>> b6368fe7d841ff6dd59f507ee14bb14c5bbaaaf7
     app.run(host="0.0.0.0", port=port, debug=False)
