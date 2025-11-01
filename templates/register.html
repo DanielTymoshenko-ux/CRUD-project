@@ -11,13 +11,29 @@
   </header>
   <main>
     <h2>Register</h2>
-    <form method="post">
-      <input type="text" name="login" placeholder="Login" required>
-      <input type="password" name="password" placeholder="Pasasword" required>
-      <button type="submit">Login</button>
+    <form method="post" novalidate onsubmit="return clientRegisterValidate(this)">
+      <input type="text" name="login" placeholder="Login" required minlength="3" maxlength="50">
+      <input type="password" name="password" placeholder="Password" required minlength="6">
+      <button type="submit">Register</button>
     </form>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <p>Already have an account? <a href="/login">Login</a></p>
   </main>
+
+<script>
+function clientRegisterValidate(form){
+  const login = form.login.value.trim();
+  const password = form.password.value;
+  if(login.length < 3 || login.length > 50){
+    alert("Login must be 3–50 characters");
+    return false;
+  }
+  if(password.length < 6){
+    alert("Password must be at least 6 characters");
+    return false;
+  }
+  return true;
+}
+</script>
 </body>
 </html>

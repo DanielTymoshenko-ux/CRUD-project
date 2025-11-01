@@ -4,41 +4,7 @@
   <meta charset="UTF-8" />
   <title>Tasks</title>
   <link rel="stylesheet" href="/static/style.css">
-  <script>
-    async function addTask() {
-      const title = document.getElementById("title").value;
-      const category = document.getElementById("category").value;
-      const priority = document.getElementById("priority").value;
-      const deadline = document.getElementById("deadline").value;
-
-      const res = await fetch("/add_task", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ title, category, priority, deadline })
-      });
-      if (res.ok) location.reload();
-    }
-
-    async function deleteTask(id) {
-      if (!confirm("Sure to remove?")) return;
-      const res = await fetch("/delete_task/" + id, { method: "DELETE" });
-      if (res.ok) location.reload();
-    }
-
-    async function updateTask(id) {
-      const title = prompt("New:");
-      const category = prompt("New cathegory:");
-      const priority = prompt("New priority:");
-      const deadline = prompt("New deadline (RRRR-MM-DD):");
-
-      const res = await fetch("/update_task/" + id, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ title, category, priority, deadline })
-      });
-      if (res.ok) location.reload();
-    }
-  </script>
+  <script src="/static/script.js" defer></script>
 </head>
 <body>
   <header>
@@ -52,15 +18,16 @@
   <main>
     <h2>Add new task</h2>
     <div class="task-form">
-      <input id="title" placeholder="Title" />
-      <input id="category" placeholder="Cathegory" />
+      <input id="title" placeholder="Title" minlength="3" maxlength="50" />
+      <input id="category" placeholder="Category" maxlength="50" />
       <input type="number" id="priority" placeholder="Priority (1–5)" min="1" max="5" value="3">
       <input id="deadline" type="date" />
-      <button onclick="addTask()">Add</button>
+      <button id="addBtn">Add</button>
     </div>
+    <div id="taskErrors" class="error" style="display:none;"></div>
 
     <h2>Task List</h2>
-    <ul>
+    <ul id="taskList">
       {% for t in tasks %}
         <li>
           <div class="task-info">

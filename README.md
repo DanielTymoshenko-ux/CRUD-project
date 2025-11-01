@@ -8,3 +8,10 @@ Zawiera dwie encje: `Task` i `Category` z relacją jeden-do-wielu.
 ```bash
 pip install -r requirements.txt
 python app.py
+
+## Tests & CI
+
+Run tests locally:
+```bash
+pip install -r requirements.txt
+pytest -v
