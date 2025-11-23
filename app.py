@@ -18,7 +18,6 @@ app.register_blueprint(weather_bp, url_prefix="/external")
 app.register_blueprint(rates_bp, url_prefix="/external")
 
 
-
 def error_payload(status:int, error:str, field_errors:list = None):
     ts = datetime.utcnow().isoformat() + "Z"
     payload = {"timestamp": ts, "status": status, "error": error}
