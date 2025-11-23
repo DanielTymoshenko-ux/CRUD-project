@@ -4,7 +4,7 @@ from services.currency_client import fetch_rates, CurrencyError
 
 rates_bp = Blueprint("rates", __name__)
 
-@rates_bp.route("/rates", methods=["GET"])
+@rates_bp.route("/", methods=["GET"])
 @rates_bp.route("/rates_api", methods=["GET"])
 def rates_api():
     base = request.args.get("base", "EUR").upper()
