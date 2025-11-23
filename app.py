@@ -17,7 +17,6 @@ db.init_app(app)
 app.register_blueprint(weather_bp, url_prefix="/external")
 app.register_blueprint(rates_bp, url_prefix="/external")
 
-
 def error_payload(status:int, error:str, field_errors:list = None):
     ts = datetime.utcnow().isoformat() + "Z"
     payload = {"timestamp": ts, "status": status, "error": error}
@@ -64,7 +63,6 @@ def parse_deadline(deadline_str):
         return None, ("deadline", "INVALID_VALUE", "Deadline cannot be in the past")
     return d, None
 
-
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -81,21 +79,17 @@ def rates_page():
 def health():
     return jsonify({"status":"ok","timestamp": datetime.utcnow().isoformat()+"Z"}), 200
 
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         login_name = request.form.get("login", "").strip()
         password = request.form.get("password", "")
-
         if not login_name or len(login_name) < 3 or len(login_name) > 50:
             return render_template("register.html", error="Login must be 3–50 characters.")
         if not password or len(password) < 6:
             return render_template("register.html", error="Password must be at least 6 characters.")
-
         if User.query.filter_by(login=login_name).first():
             return render_template("register.html", error="Login already exists."), 409
-
         user = User(login=login_name, hasloHash=generate_password_hash(password), rola="USER")
         db.session.add(user)
         try:
@@ -103,7 +97,6 @@ def register():
         except IntegrityError:
             db.session.rollback()
             return render_template("register.html", error="Login already exists."), 409
-
         session["user_id"] = user.id
         session["login"] = user.login
         return redirect("/tasks")
@@ -117,7 +110,6 @@ def login():
         user = User.query.filter_by(login=login_name).first()
         if not user or not check_password_hash(user.hasloHash, password):
             return render_template("login.html", error="Wrong login or password."), 401
-
         session["user_id"] = user.id
         session["login"] = user.login
         return redirect("/tasks")
@@ -127,7 +119,6 @@ def login():
 def logout():
     session.clear()
     return redirect("/")
-
 
 @app.route("/tasks")
 def tasks_page():
@@ -155,7 +146,6 @@ def add_task():
     if "user_id" not in session:
         return error_payload(401, "Unauthorized")
     data = request.get_json() or {}
-
     v = validate_title(data.get("title"))
     if v:
         return error_payload(400, "Bad Request", [{"field": v[0], "code": v[1], "message": v[2]}])
@@ -168,11 +158,9 @@ def add_task():
     dl, dl_err = parse_deadline(data.get("deadline"))
     if dl_err:
         return error_payload(422, "Unprocessable Entity", [{"field": dl_err[0], "code": dl_err[1], "message": dl_err[2]}])
-
     existing = Task.query.filter_by(user_id=session["user_id"], title=data.get("title").strip()).first()
     if existing:
         return error_payload(409, "Conflict", [{"field":"title","code":"DUPLICATE","message":"Task with this title already exists"}])
-
     task = Task(
         title=data.get("title").strip(),
         category=data.get("category"),
@@ -193,9 +181,7 @@ def update_task(id):
         return error_payload(404, "Not Found")
     if task.user_id != session["user_id"]:
         return error_payload(403, "Forbidden")
-
     data = request.get_json() or {}
-
     if "title" in data:
         v = validate_title(data.get("title"))
         if v:
@@ -204,25 +190,21 @@ def update_task(id):
         if other and other.id != task.id:
             return error_payload(409, "Conflict", [{"field":"title","code":"DUPLICATE","message":"Task with this title already exists"}])
         task.title = data.get("title").strip()
-
     if "category" in data:
         v = validate_category(data.get("category"))
         if v:
             return error_payload(400, "Bad Request", [{"field": v[0], "code": v[1], "message": v[2]}])
         task.category = data.get("category")
-
     if "priority" in data:
         v = validate_priority(data.get("priority"))
         if v:
             return error_payload(400, "Bad Request", [{"field": v[0], "code": v[1], "message": v[2]}])
         task.priority = int(data.get("priority"))
-
     if "deadline" in data:
         dl, dl_err = parse_deadline(data.get("deadline"))
         if dl_err:
             return error_payload(422, "Unprocessable Entity", [{"field": dl_err[0], "code": dl_err[1], "message": dl_err[2]}])
         task.deadline = dl
-
     db.session.commit()
     return jsonify({"message":"Updated"}), 200
 
@@ -239,6 +221,16 @@ def delete_task(id):
     db.session.commit()
     return jsonify({"message":"Deleted"}), 200
 
+@app.errorhandler(404)
+def handle_404(e):
+    if request.path.startswith("/external/"):
+        return jsonify({
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "status": 404,
+            "error": "Not Found",
+            "message": f"Endpoint {request.path} does not exist"
+        }), 404
+    return e
 
 if __name__ == "__main__":
     with app.app_context():
