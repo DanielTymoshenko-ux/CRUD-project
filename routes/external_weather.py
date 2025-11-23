@@ -4,7 +4,7 @@ from services.weather_client import geocode_city, fetch_weather, WeatherError
 
 weather_bp = Blueprint("weather", __name__)
 
-@weather_bp.route("/", methods=["GET"])
+//@weather_bp.route("/", methods=["GET"])
 @weather_bp.route("/weather_api", methods=["GET"])
 def weather_api():
     city = request.args.get("city")
