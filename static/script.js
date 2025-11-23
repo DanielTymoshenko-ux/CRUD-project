@@ -1,7 +1,6 @@
-// Use same origin (relative) so deployment domain works
 const API_URL = "";
 
-// helpers
+
 function showTaskErrors(errors){
   const el = document.getElementById("taskErrors");
   if(!errors || !errors.length){
@@ -15,13 +14,9 @@ function showTaskErrors(errors){
 
 async function loadTasks() {
     const res = await fetch(`/tasks`);
-    // tasks page returns HTML for page; for API tasks list use /tasks (GET) endpoint returning JSON in app.py
-    // We'll call the JSON API:
+    
     const api = await fetch(`/tasks`);
-    // But we have separate API endpoint /tasks that now returns JSON only if session exists.
-    // Using /tasks (GET) for JSON would conflict with HTML route; use /tasks (same) — we already render tasks server-side.
-    // For safety, try /tasks (JSON) endpoint /tasks?json=1 could be added, but to keep simple: rely on server-rendered list.
-    // Here we don't populate client-side list on page load (server already rendered). Still keep function as minimal.
+    
     return;
 }
 
@@ -31,7 +26,7 @@ async function addTask() {
     const priorityEl = document.getElementById("priority");
     const deadlineEl = document.getElementById("deadline");
 
-    // client-side validation
+    
     const errors = [];
     const title = titleEl.value.trim();
     if(title.length < 3 || title.length > 50) errors.push({ field: "title", message: "Title must be 3–50 chars" });
@@ -65,7 +60,7 @@ async function addTask() {
       return;
     }
 
-    // handle JSON error responses
+    
     let json;
     try { json = await res.json(); } catch(e){ alert("Request failed"); return; }
     if(json.fieldErrors){
@@ -87,7 +82,7 @@ async function deleteTask(id) {
 
 async function updateTask(id) {
   const title = prompt("New title:");
-  if(title === null) return; // cancelled
+  if(title === null) return; 
   const category = prompt("New category:");
   const priority = prompt("New priority (1-5):");
   const deadline = prompt("New deadline (YYYY-MM-DD):");
@@ -108,8 +103,117 @@ async function updateTask(id) {
   }
 }
 
-// attach event
+
 window.addEventListener("load", () => {
   const btn = document.getElementById("addBtn");
   if(btn) btn.addEventListener("click", addTask);
+});
+
+
+async function fetchWeather() {
+  const city = document.getElementById("weatherCity").value.trim();
+  const loading = document.getElementById("weatherLoading");
+  const err = document.getElementById("weatherError");
+  const result = document.getElementById("weatherResult");
+  const list = document.getElementById("weatherList");
+
+  err.style.display = "none"; 
+  result.style.display = "none";
+
+  if (!city) {
+    err.textContent = "Wpisz miasto";
+    err.style.display = "block";
+    return;
+  }
+
+  loading.style.display = "block";
+
+  try {
+   const res = await fetch(`/weather_api?city=${encodeURIComponent(city)}`);
+    let j;
+    try {
+      j = await res.json();
+    } catch(e) {
+      throw new Error(`Server returned non-JSON: ${res.status} ${res.statusText}`);
+    }
+
+    if (!res.ok) throw new Error(j.message || `Error ${res.status}`);
+
+    list.innerHTML = "";
+    (j.forecast || []).forEach(item => {
+      const d = document.createElement("div");
+      d.textContent = `${item.time} — ${item.temperature} °C`;
+      list.appendChild(d);
+    });
+    result.style.display = "block";
+
+  } catch (e) {
+    err.textContent = "Błąd: " + e.message;
+    err.style.display = "block";
+  } finally {
+    loading.style.display = "none";
+  }
+}
+
+
+async function fetchRates() {
+  const base = document.getElementById("baseSel").value;
+  const symbols = document.getElementById("symbolsInput").value;
+  const loading = document.getElementById("ratesLoading");
+  const err = document.getElementById("ratesError");
+  const table = document.getElementById("ratesTable");
+  const body = document.getElementById("ratesBody");
+
+  err.style.display = "none";
+  table.style.display = "none";
+  body.innerHTML = "";
+  loading.style.display = "block";
+
+  try {
+    const params = new URLSearchParams();
+    params.set("base", base);
+    if (symbols) params.set("symbols", symbols);
+
+   const res = await fetch(`/rates_api?${params.toString()}`);
+    let j;
+    try {
+      j = await res.json();
+    } catch(e) {
+      throw new Error(`Server returned non-JSON: ${res.status} ${res.statusText}`);
+    }
+
+    if (!res.ok) throw new Error(j.message || `Error ${res.status}`);
+
+    (j.rates || []).forEach(r => {
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td");
+      const td2 = document.createElement("td");
+      td1.textContent = r.currency;
+      td2.textContent = r.value;
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      body.appendChild(tr);
+    });
+
+    table.style.display = "table";
+
+  } catch (e) {
+    err.textContent = "Błąd: " + e.message;
+    err.style.display = "block";
+  } finally {
+    loading.style.display = "none";
+  }
+}
+
+
+
+window.addEventListener("load", () => {
+  const btn = document.getElementById("addBtn");
+  if(btn) btn.addEventListener("click", addTask);
+
+  const wb = document.getElementById("fetchWeatherBtn");
+  if (wb) wb.addEventListener("click", fetchWeather);
+
+  const rb = document.getElementById("fetchRatesBtn");
+  if (rb) rb.addEventListener("click", fetchRates);
 });

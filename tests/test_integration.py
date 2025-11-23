@@ -2,7 +2,10 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from app import app, db
+
 from models import User, Task
 from werkzeug.security import generate_password_hash
 

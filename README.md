@@ -17,3 +17,18 @@ Run tests locally:
 ```bash
 pip install -r requirements.txt
 pytest -v
+
+
+## External endpoints
+
+Weather:
+GET /external/weather?city=Warsaw
+or GET /external/weather?lat=52.23&lon=21.01
+
+Rates:
+GET /external/rates?base=EUR
+GET /external/rates?base=EUR&symbols=PLN,USD
+
+Frontend pages:
+/weather
+/rates
