@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Currency Rates</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/script.js" defer></script>
+</head>
+<body>
+<header>
+  <h1>Currency Rates</h1>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/tasks">My tasks</a>
+  </nav>
+</header>
+
+<main>
+  <h2>Get latest rates</h2>
+  <div class="task-form">
+    <label for="baseSel">Base:</label>
+    <select id="baseSel">
+      <option>EUR</option>
+      <option>USD</option>
+      <option>GBP</option>
+    </select>
+    <input id="symbolsInput" placeholder="Symbols (comma separated) e.g. PLN,USD" />
+    <button id="fetchRatesBtn">Pobierz kursy</button>
+  </div>
+
+  <div id="ratesLoading" style="display:none;">Ładowanie…</div>
+  <div id="ratesError" class="error" style="display:none;"></div>
+
+  <table id="ratesTable" style="display:none;">
+    <thead><tr><th>Currency</th><th>Rate</th></tr></thead>
+    <tbody id="ratesBody"></tbody>
+  </table>
+</main>
+</body>
+</html>
