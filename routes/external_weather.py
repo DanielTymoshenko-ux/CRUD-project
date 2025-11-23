@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify, current_app
 from services.weather_client import geocode_city, fetch_weather, WeatherError
 
-weather_bp = Blueprint("weather_api_bp", __name__)
+weather_bp = Blueprint("weather", __name__)
 
-@weather_bp.route("/weather_api", methods=["GET"])
+@weather_bp.route("/weather", methods=["GET"]) 
 def weather_api():
     city = request.args.get("city")
     lat = request.args.get("lat")
