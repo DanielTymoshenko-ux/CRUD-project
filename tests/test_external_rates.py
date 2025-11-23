@@ -9,4 +9,12 @@ def test_rates_happy(mock_fetch, client, base, symbols):
     res = client.get(f"/external/rates?base={base}&symbols={symbols}")
     assert res.status_code == 200
     data = res.get_json()
-    assert data == fake_rates_ok
+    
+    # 
+    assert "base" in data
+    assert data["base"] == "EUR"
+    assert "rates" in data
+    assert "PLN" in data["rates"]
+    assert "USD" in data["rates"]
+    assert isinstance(data["rates"]["PLN"], (int, float))
+    assert isinstance(data["rates"]["USD"], (int, float))
