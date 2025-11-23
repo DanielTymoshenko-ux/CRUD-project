@@ -239,7 +239,7 @@ def delete_task(id):
     db.session.commit()
     return jsonify({"message":"Deleted"}), 200
 
--
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
