@@ -111,40 +111,42 @@ window.addEventListener("load", () => {
 
 
 async function fetchWeather() {
-  const city = document.getElementById("weatherCity").value.trim();
+  const city = document.getElementById("cityInput").value.trim();
   const loading = document.getElementById("weatherLoading");
   const err = document.getElementById("weatherError");
   const result = document.getElementById("weatherResult");
   const list = document.getElementById("weatherList");
 
-  err.style.display = "none"; 
+  err.style.display = "none";
   result.style.display = "none";
-
-  if (!city) {
-    err.textContent = "Wpisz miasto";
-    err.style.display = "block";
-    return;
-  }
-
+  list.innerHTML = "";
   loading.style.display = "block";
 
   try {
-   const res = await fetch(`${window.location.origin}/external/weather?city=${encodeURIComponent(city)}`);
-    let j;
-    try {
-      j = await res.json();
-    } catch(e) {
-      throw new Error(`Server returned non-JSON: ${res.status} ${res.statusText}`);
+    if (!city) throw new Error("City is required");
+
+    const url = ${window.location.origin}/external/weather?city=${encodeURIComponent(city)};
+    const res = await fetch(url);
+
+    
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      throw new Error(`Server returned non-JSON: ${res.status}`);
     }
 
-    if (!res.ok) throw new Error(j.message || `Error ${res.status}`);
+    const j = await res.json();
 
-    list.innerHTML = "";
+    if (!res.ok) {
+      throw new Error(j.error || `Error ${res.status}`);
+    }
+
+   
     (j.forecast || []).forEach(item => {
       const d = document.createElement("div");
-      d.textContent = `${item.time} — ${item.temperature} °C`;
+      d.textContent = ${item.time} — ${item.temperature} °C;
       list.appendChild(d);
     });
+
     result.style.display = "block";
 
   } catch (e) {
@@ -154,7 +156,6 @@ async function fetchWeather() {
     loading.style.display = "none";
   }
 }
-
 
 async function fetchRates() {
   const base = document.getElementById("baseSel").value;
@@ -174,22 +175,31 @@ async function fetchRates() {
     params.set("base", base);
     if (symbols) params.set("symbols", symbols);
 
-   const res = await fetch(`${window.location.origin}/external/rates?${params.toString()}`);
-    let j;
-    try {
-      j = await res.json();
-    } catch(e) {
-      throw new Error(`Server returned non-JSON: ${res.status} ${res.statusText}`);
+    const url = ${window.location.origin}/external/rates?${params.toString()};
+    const res = await fetch(url);
+
+   
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      throw new Error(`Server returned non-JSON: ${res.status}`);
     }
 
-    if (!res.ok) throw new Error(j.message || `Error ${res.status}`);
+    const j = await res.json();
 
-    (j.rates || []).forEach(r => {
+    if (!res.ok) {
+      throw new Error(j.error || `Error ${res.status}`);
+    }
+
+   
+    (j.rates || []).forEach(item => {
       const tr = document.createElement("tr");
+
       const td1 = document.createElement("td");
+      td1.textContent = item.currency;
+
       const td2 = document.createElement("td");
-      td1.textContent = r.currency;
-      td2.textContent = r.value;
+      td2.textContent = item.value;
+
       tr.appendChild(td1);
       tr.appendChild(td2);
       body.appendChild(tr);
@@ -204,7 +214,6 @@ async function fetchRates() {
     loading.style.display = "none";
   }
 }
-
 
 
 window.addEventListener("load", () => {
