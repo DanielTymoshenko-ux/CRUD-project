@@ -137,13 +137,13 @@ async function fetchWeather() {
     const j = await res.json();
 
     if (!res.ok) {
-      throw new Error(j.error || `Error ${res.status}`);
+      throw new Error('${j.error} Error ${res.status}`);
     }
 
    
     (j.forecast || []).forEach(item => {
       const d = document.createElement("div");
-      d.textContent = ${item.time} — ${item.temperature} °C;
+      d.textContent = '${item.time} — ${item.temperature} °C';
       list.appendChild(d);
     });
 
