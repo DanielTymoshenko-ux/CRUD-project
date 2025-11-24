@@ -14,8 +14,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "secret_key_123")
 db.init_app(app)
 
-app.register_blueprint(weather_bp, url_prefix="/external/")
-app.register_blueprint(rates_bp, url_prefix="/external/")
+app.register_blueprint(weather_bp, url_prefix="/external")
+app.register_blueprint(rates_bp, url_prefix="/external")
 
 
 def error_payload(status:int, error:str, field_errors:list = None):
