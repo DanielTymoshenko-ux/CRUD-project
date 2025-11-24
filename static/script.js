@@ -176,16 +176,17 @@ async function fetchRates() {
       throw new Error(`${j.error || "Error"} Error ${res.status}`);
     }
 
-    (j.rates || []).forEach(item => {
-      const tr = document.createElement("tr");
-      const td1 = document.createElement("td");
-      td1.textContent = item.currency;
-      const td2 = document.createElement("td");
-      td2.textContent = item.value;
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      body.appendChild(tr);
-    });
+    const rates = j.rates || {};
+Object.entries(rates).forEach(([currency, value]) => {
+  const tr = document.createElement("tr");
+  const td1 = document.createElement("td");
+  td1.textContent = currency;
+  const td2 = document.createElement("td");
+  td2.textContent = value;
+  tr.appendChild(td1);
+  tr.appendChild(td2);
+  body.appendChild(tr);
+});
 
     table.style.display = "table";
   } catch (e) {
