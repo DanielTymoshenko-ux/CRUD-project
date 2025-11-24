@@ -137,7 +137,7 @@ async function fetchWeather() {
     const j = await res.json();
 
     if (!res.ok) {
-      throw new Error('${j.error} Error ${res.status}`);
+      throw new Error(`${j.error} Error ${res.status}`);
     }
 
    
