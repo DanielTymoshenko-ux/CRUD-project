@@ -13,8 +13,7 @@ function showTaskErrors(errors) {
 
 async function loadTasks() {
   const res = await fetch(`/tasks`);
-  const api = await fetch(`/tasks`);
-  return;
+  return await res.json();
 }
 
 async function addTask() {
@@ -25,15 +24,13 @@ async function addTask() {
 
   const errors = [];
   const title = titleEl.value.trim();
-  if (title.length < 3 || title.length > 50) errors.push({ field: "title", message: "Title must be 3–50 chars" });
+  if (title.length < 3 || title.length > 50) errors.push({ field: "title", message: "Title must be 3-50 chars" });
 
   const category = categoryEl.value.trim();
   if (category && category.length > 50) errors.push({ field: "category", message: "Category max 50 chars" });
 
   const priority = parseInt(priorityEl.value || "0", 10);
-  if (Number.isNaN(priority)  priority < 1  priority > 5) {
-  errors.push({ field: "priority", message: "Priority 1–5" });
-}
+  if (Number.isNaN(priority)  priority < 1  priority > 5) errors.push({ field: "priority", message: "Priority 1-5" });
 
   const deadline = deadlineEl.value;
   if (deadline) {
@@ -96,8 +93,11 @@ async function updateTask(id) {
   if (res.ok) location.reload();
   else {
     const json = await res.json().catch(() => null);
-    if (json && json.fieldErrors) showTaskErrors(json.fieldErrors);
-    else alert("Update failed");
+    if (json && json.fieldErrors) {
+      showTaskErrors(json.fieldErrors);
+    } else {
+      alert("Update failed");
+    }
   }
 }
 
@@ -125,9 +125,8 @@ async function fetchWeather() {
     }
 
     const j = await res.json();
-
     if (!res.ok) {
-      throw new Error(`${j.error || "Error"} (${res.status})`);
+      throw new Error(`${j.error || "Error"} Error ${res.status}`);
     }
 
     (j.forecast || []).forEach(item => {
@@ -137,7 +136,6 @@ async function fetchWeather() {
     });
 
     result.style.display = "block";
-
   } catch (e) {
     err.textContent = "Błąd: " + e.message;
     err.style.display = "block";
@@ -173,27 +171,22 @@ async function fetchRates() {
     }
 
     const j = await res.json();
-
     if (!res.ok) {
-      throw new Error(`${j.error || "Error"} (${res.status})`);
+      throw new Error(`${j.error || "Error"} Error ${res.status}`);
     }
 
     (j.rates || []).forEach(item => {
       const tr = document.createElement("tr");
-
       const td1 = document.createElement("td");
       td1.textContent = item.currency;
-
       const td2 = document.createElement("td");
       td2.textContent = item.value;
-
       tr.appendChild(td1);
       tr.appendChild(td2);
       body.appendChild(tr);
     });
 
     table.style.display = "table";
-
   } catch (e) {
     err.textContent = "Błąd: " + e.message;
     err.style.display = "block";
