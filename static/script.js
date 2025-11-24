@@ -1,9 +1,8 @@
 const API_URL = "";
 
-
-function showTaskErrors(errors){
+function showTaskErrors(errors) {
   const el = document.getElementById("taskErrors");
-  if(!errors || !errors.length){
+  if (!errors || !errors.length) {
     el.style.display = "none";
     el.textContent = "";
     return;
@@ -13,61 +12,60 @@ function showTaskErrors(errors){
 }
 
 async function loadTasks() {
-    const res = await fetch(`/tasks`);
-    
-    const api = await fetch(`/tasks`);
-    
-    return;
+  const res = await fetch(`/tasks`);
+  const api = await fetch(`/tasks`);
+  return;
 }
 
 async function addTask() {
-    const titleEl = document.getElementById("title");
-    const categoryEl = document.getElementById("category");
-    const priorityEl = document.getElementById("priority");
-    const deadlineEl = document.getElementById("deadline");
+  const titleEl = document.getElementById("title");
+  const categoryEl = document.getElementById("category");
+  const priorityEl = document.getElementById("priority");
+  const deadlineEl = document.getElementById("deadline");
 
-    
-    const errors = [];
-    const title = titleEl.value.trim();
-    if(title.length < 3 || title.length > 50) errors.push({ field: "title", message: "Title must be 3–50 chars" });
-    const category = categoryEl.value.trim();
-    if(category && category.length > 50) errors.push({ field: "category", message: "Category max 50 chars" });
-    const priority = parseInt(priorityEl.value || "0", 10);
-    if(Number.isNaN(priority) || priority < 1 || priority > 5) errors.push({ field: "priority", message: "Priority 1–5" });
-    const deadline = deadlineEl.value;
-    if(deadline){
-      const d = new Date(deadline + "T00:00:00");
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      if(d < today) errors.push({ field: "deadline", message: "Deadline cannot be in the past" });
-    }
+  const errors = [];
+  const title = titleEl.value.trim();
+  if (title.length < 3 || title.length > 50) errors.push({ field: "title", message: "Title must be 3–50 chars" });
 
-    if(errors.length){
-      showTaskErrors(errors);
-      return;
-    }
-    showTaskErrors(null);
+  const category = categoryEl.value.trim();
+  if (category && category.length > 50) errors.push({ field: "category", message: "Category max 50 chars" });
 
-    const payload = { title, category, priority, deadline: deadline || null };
-    const res = await fetch(`/add_task`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-    });
+  const priority = parseInt(priorityEl.value || "0", 10);
+  if (Number.isNaN(priority)  priority < 1  priority > 5) errors.push({ field: "priority", message: "Priority 1–5" });
 
-    if(res.ok){
-      location.reload();
-      return;
-    }
+  const deadline = deadlineEl.value;
+  if (deadline) {
+    const d = new Date(deadline + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (d < today) errors.push({ field: "deadline", message: "Deadline cannot be in the past" });
+  }
 
-    
-    let json;
-    try { json = await res.json(); } catch(e){ alert("Request failed"); return; }
-    if(json.fieldErrors){
-      showTaskErrors(json.fieldErrors);
-    } else {
-      alert(`${json.error || "Error"} (${res.status})`);
-    }
+  if (errors.length) {
+    showTaskErrors(errors);
+    return;
+  }
+  showTaskErrors(null);
+
+  const payload = { title, category, priority, deadline: deadline || null };
+  const res = await fetch("/add_task", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) {
+    location.reload();
+    return;
+  }
+
+  let json;
+  try { json = await res.json(); } catch (e) { alert("Request failed"); return; }
+  if (json.fieldErrors) {
+    showTaskErrors(json.fieldErrors);
+  } else {
+    alert(`${json.error || "Error"} (${res.status})`);
+  }
 }
 
 async function deleteTask(id) {
@@ -75,40 +73,31 @@ async function deleteTask(id) {
   const res = await fetch(`/delete_task/${id}`, { method: "DELETE" });
   if (res.ok) location.reload();
   else {
-    const json = await res.json().catch(()=>null);
+    const json = await res.json().catch(() => null);
     alert((json && json.error) ? json.error : "Delete failed");
   }
 }
 
 async function updateTask(id) {
   const title = prompt("New title:");
-  if(title === null) return; 
+  if (title === null) return;
   const category = prompt("New category:");
   const priority = prompt("New priority (1-5):");
   const deadline = prompt("New deadline (YYYY-MM-DD):");
 
   const res = await fetch(`/update_task/${id}`, {
     method: "PUT",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, category, priority, deadline })
   });
-  if(res.ok) location.reload();
+
+  if (res.ok) location.reload();
   else {
-    const json = await res.json().catch(()=>null);
-    if(json && json.fieldErrors){
-      showTaskErrors(json.fieldErrors);
-    } else {
-      alert("Update failed");
-    }
+    const json = await res.json().catch(() => null);
+    if (json && json.fieldErrors) showTaskErrors(json.fieldErrors);
+    else alert("Update failed");
   }
 }
-
-
-window.addEventListener("load", () => {
-  const btn = document.getElementById("addBtn");
-  if(btn) btn.addEventListener("click", addTask);
-});
-
 
 async function fetchWeather() {
   const city = document.getElementById("cityInput").value.trim();
@@ -136,7 +125,7 @@ async function fetchWeather() {
     const j = await res.json();
 
     if (!res.ok) {
-      throw new Error(`${j.error} Error ${res.status}`);
+      throw new Error(`${j.error || "Error"} (${res.status})`);
     }
 
     (j.forecast || []).forEach(item => {
@@ -184,7 +173,7 @@ async function fetchRates() {
     const j = await res.json();
 
     if (!res.ok) {
-      throw new Error(`${j.error} Error ${res.status}`);
+      throw new Error(`${j.error || "Error"} (${res.status})`);
     }
 
     (j.rates || []).forEach(item => {
