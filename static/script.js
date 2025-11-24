@@ -125,7 +125,7 @@ async function fetchWeather() {
   try {
     if (!city) throw new Error("City is required");
 
-    const url = ${window.location.origin}/external/weather?city=${encodeURIComponent(city)};
+    const url = '${window.location.origin}/external/weather?city=${encodeURIComponent(city)}';
     const res = await fetch(url);
 
     
