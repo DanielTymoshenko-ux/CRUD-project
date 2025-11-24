@@ -29,10 +29,9 @@ async function addTask() {
   const category = categoryEl.value.trim();
   if (category && category.length > 50) errors.push({ field: "category", message: "Category max 50 chars" });
 
-  const priority = parseInt(priorityEl.value || "0", 10);
- if (Number.isNaN(priority)  priority < 1  priority > 5) {
-  errors.push({ field: "priority", message: "Priority 1–5" });
-}
+  //const priority = parseInt(priorityEl.value || "0", 10);
+ //if (Number.isNaN(priority)  priority < 1  priority > 5) {
+ // errors.push({ field: "priority", message: "Priority 1–5" }); }
   const deadline = deadlineEl.value;
   if (deadline) {
     const d = new Date(deadline + "T00:00:00");
