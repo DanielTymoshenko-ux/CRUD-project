@@ -116,7 +116,7 @@ async function fetchWeather() {
   try {
     if (!city) throw new Error("City is required");
 
-    const url = '${window.location.origin}/external/weather?city=${encodeURIComponent(city)}';
+    const url = ${window.location.origin}/external/weather?city=${encodeURIComponent(city)};
     const res = await fetch(url);
 
     const ct = res.headers.get("content-type") || "";
@@ -162,7 +162,7 @@ async function fetchRates() {
     params.set("base", base);
     if (symbols) params.set("symbols", symbols);
 
-    const url = '${window.location.origin}/external/rates?${params.toString()}';
+    const url = ${window.location.origin}/external/rates?${params.toString()};
     const res = await fetch(url);
 
     const ct = res.headers.get("content-type") || "";
