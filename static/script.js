@@ -129,7 +129,7 @@ async function fetchWeather() {
   loading.style.display = "block";
 
   try {
-   const res = await fetch(`/weather_api?city=${encodeURIComponent(city)}`);
+   const res = await fetch(`/weather?city=${encodeURIComponent(city)}`);
     let j;
     try {
       j = await res.json();
@@ -174,7 +174,7 @@ async function fetchRates() {
     params.set("base", base);
     if (symbols) params.set("symbols", symbols);
 
-   const res = await fetch(`/rates_api?${params.toString()}`);
+   const res = await fetch(`/rates?${params.toString()}`);
     let j;
     try {
       j = await res.json();
