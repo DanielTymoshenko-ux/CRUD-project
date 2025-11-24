@@ -102,7 +102,9 @@ async function updateTask(id) {
 }
 
 async function fetchWeather() {
-  const city = document.getElementById("cityInput").value.trim();
+  const cityEl = document.getElementById("cityInput") || document.getElementById("weatherCity");
+  const city = cityEl ? cityEl.value.trim() : "Warsaw"; // default якщо елемента немає
+
   const loading = document.getElementById("weatherLoading");
   const err = document.getElementById("weatherError");
   const result = document.getElementById("weatherResult");
@@ -131,7 +133,7 @@ async function fetchWeather() {
 
     (j.forecast || []).forEach(item => {
       const d = document.createElement("div");
-      d.textContent = `${item.time} - ${item.temperature}°C`;
+      d.textContent = `${item.time} - ${item.temperature} °C`;
       list.appendChild(d);
     });
 
@@ -143,7 +145,6 @@ async function fetchWeather() {
     loading.style.display = "none";
   }
 }
-
 async function fetchRates() {
   const base = document.getElementById("baseSel").value;
   const symbols = document.getElementById("symbolsInput").value;
