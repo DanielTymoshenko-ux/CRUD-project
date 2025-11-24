@@ -125,10 +125,9 @@ async function fetchWeather() {
   try {
     if (!city) throw new Error("City is required");
 
-    const url = '${window.location.origin}/external/weather?city=${encodeURIComponent(city)}';
+    const url = ${window.location.origin}/external/weather?city=${encodeURIComponent(city)};
     const res = await fetch(url);
 
-    
     const ct = res.headers.get("content-type") || "";
     if (!ct.includes("application/json")) {
       throw new Error(`Server returned non-JSON: ${res.status}`);
@@ -140,10 +139,9 @@ async function fetchWeather() {
       throw new Error(`${j.error} Error ${res.status}`);
     }
 
-   
     (j.forecast || []).forEach(item => {
       const d = document.createElement("div");
-      d.textContent = '${item.time} — ${item.temperature} °C';
+      d.textContent = ${item.time} — ${item.temperature} °C;
       list.appendChild(d);
     });
 
@@ -178,7 +176,6 @@ async function fetchRates() {
     const url = ${window.location.origin}/external/rates?${params.toString()};
     const res = await fetch(url);
 
-   
     const ct = res.headers.get("content-type") || "";
     if (!ct.includes("application/json")) {
       throw new Error(`Server returned non-JSON: ${res.status}`);
@@ -187,10 +184,9 @@ async function fetchRates() {
     const j = await res.json();
 
     if (!res.ok) {
-      throw new Error(j.error || `Error ${res.status}`);
+      throw new Error(`${j.error} Error ${res.status}`);
     }
 
-   
     (j.rates || []).forEach(item => {
       const tr = document.createElement("tr");
 
@@ -215,10 +211,9 @@ async function fetchRates() {
   }
 }
 
-
 window.addEventListener("load", () => {
   const btn = document.getElementById("addBtn");
-  if(btn) btn.addEventListener("click", addTask);
+  if (btn) btn.addEventListener("click", addTask);
 
   const wb = document.getElementById("fetchWeatherBtn");
   if (wb) wb.addEventListener("click", fetchWeather);
