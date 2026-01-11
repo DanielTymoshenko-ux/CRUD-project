@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:5000/api/tasks";
+const API = "https://todo-crud-project.up.railway.app/todos";
 
 let tasksCache = [];
 let currentFilter = "all";
@@ -12,20 +12,24 @@ function escapeHtml(s) {
 }
 
 async function loadTasks() {
-  const res = await fetch(API);
-  const tasks = await res.json();
-  tasksCache = tasks;
-  renderTasks();
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error(`Błąd ładowania: ${res.status}`);
+    const tasks = await res.json();
+    tasksCache = tasks;
+    renderTasks();
+  } catch (err) {
+    console.error(err);
+    alert("Nie udało się załadować zadań.");
+  }
 }
 
 function renderTasks() {
   let filtered = tasksCache;
 
-  if (currentFilter === "active") {
-    filtered = tasksCache.filter(t => !t.done);
-  } else if (currentFilter === "done") {
-    filtered = tasksCache.filter(t => t.done);
-  }
+  if (currentFilter === "active") filtered = tasksCache.filter(t => !t.done);
+  else if (currentFilter === "done") filtered = tasksCache.filter(t => t.done);
+
   filtered = filtered.slice().sort((a, b) => {
     if ((b.priority || 0) === (a.priority || 0)) {
       return new Date(b.created_at) - new Date(a.created_at);
@@ -38,7 +42,6 @@ function renderTasks() {
   const countEl = document.getElementById("taskCount");
 
   list.innerHTML = "";
-
   countEl.textContent = `(${filtered.length} / ${tasksCache.length})`;
 
   if (filtered.length === 0) {
@@ -52,7 +55,6 @@ function renderTasks() {
     li.className = "task";
 
     const titleCls = "task-title" + (t.done ? " done" : "");
-
     const prioClass = `chip chip-prio-${t.priority || 3}`;
 
     li.innerHTML = `
@@ -63,11 +65,7 @@ function renderTasks() {
         </div>
       </div>
       <div class="task-meta">
-        ${
-          t.description
-            ? `<span>${escapeHtml(t.description)}</span>`
-            : ""
-        }
+        ${t.description ? `<span>${escapeHtml(t.description)}</span>` : ""}
         <span class="${prioClass}">Priorytet: ${t.priority ?? "-"}</span>
         <span class="chip">Deadline: ${t.deadline || "-"}</span>
         <span class="chip">Utworzone: ${formatDateTime(t.created_at)}</span>
@@ -115,13 +113,7 @@ async function saveTask() {
     return;
   }
 
-  const payload = {
-    title,
-    description,
-    priority,
-    deadline,
-    done
-  };
+  const payload = { title, description, priority, deadline, done };
 
   let url = API;
   let method = "POST";
@@ -131,20 +123,25 @@ async function saveTask() {
     method = "PUT";
   }
 
-  const res = await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    alert("Błąd: " + (err.error || res.status));
-    return;
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert("Błąd: " + (err.error || res.status));
+      return;
+    }
+
+    clearForm();
+    loadTasks();
+  } catch (err) {
+    console.error(err);
+    alert("Nie udało się zapisać zadania.");
   }
-
-  clearForm();
-  loadTasks();
 }
 
 function clearForm() {
@@ -158,8 +155,15 @@ function clearForm() {
 
 async function deleteTask(id) {
   if (!confirm("Na pewno chcesz usunąć to zadanie?")) return;
-  await fetch(`${API}/${id}`, { method: "DELETE" });
-  loadTasks();
+
+  try {
+    const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+    if (!res.ok) alert("Nie udało się usunąć zadania.");
+    loadTasks();
+  } catch (err) {
+    console.error(err);
+    alert("Błąd sieci przy usuwaniu zadania.");
+  }
 }
 
 function editTask(id) {
@@ -179,17 +183,19 @@ async function toggleDone(id) {
   const t = tasksCache.find(x => x.id === id);
   if (!t) return;
 
-  const res = await fetch(`${API}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ done: !t.done })
-  });
+  try {
+    const res = await fetch(`${API}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ done: !t.done })
+    });
 
-  if (!res.ok) {
-    alert("Nie udało się zmienić statusu");
-    return;
+    if (!res.ok) alert("Nie udało się zmienić statusu");
+    loadTasks();
+  } catch (err) {
+    console.error(err);
+    alert("Błąd sieci przy zmianie statusu");
   }
-  loadTasks();
 }
 
 function setFilter(filter) {
@@ -198,14 +204,11 @@ function setFilter(filter) {
   document.getElementById("filter-active").classList.remove("active");
   document.getElementById("filter-done").classList.remove("active");
 
-  if (filter === "all") {
-    document.getElementById("filter-all").classList.add("active");
-  } else if (filter === "active") {
-    document.getElementById("filter-active").classList.add("active");
-  } else if (filter === "done") {
-    document.getElementById("filter-done").classList.add("active");
-  }
+  if (filter === "all") document.getElementById("filter-all").classList.add("active");
+  else if (filter === "active") document.getElementById("filter-active").classList.add("active");
+  else if (filter === "done") document.getElementById("filter-done").classList.add("active");
 
   renderTasks();
 }
+
 window.addEventListener("load", loadTasks);
